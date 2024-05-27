@@ -28,9 +28,9 @@ def input_valid_math_answer(question, errortext):
             return answer # returned if answer is digit
         else:
             print(errortext)
-            
+
 # Called at the beginning of the game and when restarting after losing
-def play_game(question, n_message, y_message):
+def input_play_game(question, n_message, y_message):
     answer = input_valid_str(question, 'Choose \'y\' for yes and \'n\' for no', ('y', 'n'))
     if answer == 'n':
         print(n_message)
@@ -42,7 +42,7 @@ def play_game(question, n_message, y_message):
 # Printed out when door does not lead to the zombies
 # I chose to use print also in a method as otherwise it
 # would have been repeated several times in the main program
-def good_door(zombie_door, answered_questions, doors_left):
+def print_good_door(zombie_door, answered_questions, doors_left):
     print('\nPhew, no zombies in sight!')
     print(f'They were hiding behind door {zombie_door}')
     print(f'You have now made it through question {answered_questions}.')
@@ -58,22 +58,17 @@ def generate_new_values(doors_left):
 
 # Method used when calculation_methos is not 'r'
 # I chose to put input in a method to make a less messy main and to avoid repetition
-def calculate(multiplication_table, factor_or_dividend, calculation_method):
+def calculate(table_or_divisor, factor_or_dividend, calculation_method):
+    factor_or_dividend = randint(0, 12)
+    question = f'{factor_or_dividend} {calculation_method} {table_or_divisor} = '
+    # Calling input_valid_math_answer-method to make sure input is only numbers
+    user_answer = input_valid_math_answer(question, 'Use only numbers')
     if calculation_method == '*':
-        question = f'{multiplication_table} {calculation_method} {factor_or_dividend} = '
-        # Calling input_valid_math_answer-method to make sure input is only numbers
-        user_answer = input_valid_math_answer(question, 'Use only numbers')
-        correct_answer = multiplication_table * factor_or_dividend
+        correct_answer = factor_or_dividend * table_or_divisor
     elif calculation_method == '//':
-        divisor = randint(2, 5)
-        question = f'{factor_or_dividend} {calculation_method} {divisor} = '
-        user_answer = input_valid_math_answer(question, 'Use only numbers')
-        correct_answer = factor_or_dividend // divisor
+        correct_answer = factor_or_dividend // table_or_divisor
     elif calculation_method == '%':
-        divisor = randint(2, 5)
-        question = f'{factor_or_dividend} {calculation_method} {divisor} = '
-        user_answer = input_valid_math_answer(question, 'Use only numbers')
-        correct_answer = factor_or_dividend % divisor
+        correct_answer = factor_or_dividend % table_or_divisor
     return user_answer, correct_answer
 
 # Method used when random calculation method is chosen
@@ -81,25 +76,17 @@ def calculate(multiplication_table, factor_or_dividend, calculation_method):
 def calculate_random():
     # Calculation method is randomly generated
     random_calc_method = choice(['*', '//', '%'])
+    factor_or_dividend = randint(0, 12)
+    table_or_divisor = randint(2, 12)
+    question = f'{factor_or_dividend} {random_calc_method} {table_or_divisor} = '
+    # Calling input_valid_math_answer-method to make sure input is only numbers
+    user_answer = input_valid_math_answer(question, 'Use only numbers')
     if random_calc_method == '*':
-        factor_or_dividend = randint(0, 12)
-        multiplication_table = randint(2, 12)
-        question = f'{multiplication_table} {random_calc_method} {factor_or_dividend} = '
-        # Calling input_valid_math_answer-method to make sure input is only numbers
-        user_answer = input_valid_math_answer(question, 'Use only numbers')
-        correct_answer = multiplication_table * factor_or_dividend
+        correct_answer = factor_or_dividend * table_or_divisor
     elif random_calc_method == '//':
-        factor_or_dividend = randint(0, 12)
-        divisor = randint(2, 5)
-        question = f'{factor_or_dividend} {random_calc_method} {divisor} = '
-        user_answer = input_valid_math_answer(question, 'Use only numbers')
-        correct_answer = factor_or_dividend // divisor
+        correct_answer = factor_or_dividend // table_or_divisor
     elif random_calc_method == '%':
-        factor_or_dividend = randint(0, 12)
-        divisor = randint(2, 5)
-        question = f'{factor_or_dividend} {random_calc_method} {divisor} = '
-        user_answer = input_valid_math_answer(question, 'Use only numbers')
-        correct_answer = factor_or_dividend % divisor
+        correct_answer = factor_or_dividend % table_or_divisor
     return user_answer, correct_answer
 
 # Resets values after answering wrong or killed
@@ -118,7 +105,7 @@ def start():
     print('****** The only way out is to answer some mathematical questions *****')
     print('*** and to make sure not to choose the door leading to the zombies ***')
     question = ('****************** Are you ready to play? (y/n) *********************\n')
-    begin = play_game(question, n_message, y_message)
+    begin = input_play_game(question, n_message, y_message)
 
     # While user says yes to begin
     while begin:
@@ -142,10 +129,10 @@ def start():
         if calculation_method in ('*', '//', '%'):
             if calculation_method == '*':
                 question = 'Choose multiplication table (2-12): '
-                multiplication_table = input_valid_int(question, 'Choose a number between 2-12', 2, 12)
+                table_or_divisor = input_valid_int(question, 'Choose a number between 2-12', 2, 12)
             elif calculation_method in ('//', '%'):
                 question = 'Choose divisor (2 - 5): '
-                divisor = input_valid_int(question, 'Choose a number between 2-5', 2, 5)
+                table_or_divisor = input_valid_int(question, 'Choose a number between 2-5', 2, 5)
 
         print('\nAlright, let\'s play...!\n')
         begin = False
@@ -169,6 +156,8 @@ def start():
                 elif num_of_questions >= 26:
                     if used_factor_dividend_list[factor_or_dividend] < 4:
                         break
+                # Generate new values if the current one has been used too much
+                factor_or_dividend = randint(0, 12)
             # Value of factor/dividend is saved to the list
             used_factor_dividend_list[factor_or_dividend] += 1
 
@@ -176,7 +165,9 @@ def start():
             if calculation_method == 'r':
                 user_answer, correct_answer = calculate_random()
             else:
-                user_answer, correct_answer = calculate(multiplication_table, factor_or_dividend, calculation_method)
+                user_answer, correct_answer = calculate(table_or_divisor,
+                                                        factor_or_dividend, 
+                                                        calculation_method)
 
             # Keeps track of number of answered questions
             answered_questions += 1
@@ -189,50 +180,56 @@ def start():
 
                 # If zombies are behind the door the game is over
                 if chosen_door == zombie_door:
+                    user_lost = True
                     print('\nOh no, the zombies killed you!\nGAME OVER')
-                    question = '\n*** Are you ready for another game? (y/n) ***\n'
-                    # Restart game with same settings if yes (begin still False)
-                    used_factor_dividend_list, answered_questions, doors_left = reset_after_losing(num_of_questions)
-                    alive = play_game(question, n_message, y_message)
                 else:
                     # If door was ok a message is printed out
                     doors_left -= 1
-                    alive = good_door(zombie_door, answered_questions, doors_left)
-                    
+                    user_lost = False
+                    alive = print_good_door(zombie_door, answered_questions, doors_left)
+
             # If player gives wrong answer to math questions
             else:
+                user_lost = True
                 print('\nWrong answer - you died!\nGAME OVER')
+
+            if user_lost:
                 question = '\n*** Are you ready for another game? (y/n) ***\n'
                 # Re-starts with same settings as begin is still False
                 used_factor_dividend_list, answered_questions, doors_left = reset_after_losing(num_of_questions)
                 # Stops loop from continuing until player has restarted
-                alive = play_game(question, n_message, y_message)
+                alive = input_play_game(question, n_message, y_message)
 
             # If only one door left, only a math question is to be asked
             if doors_left == 1 and alive:
                 print('\nCongratulations! You have made it to the final door.')
-                print('To survive, you just need to make sure you answer one more question correctly')
+                print('To survive, you just need to make sure you answer one more question correctly\n')
                 if calculation_method == 'r':
                     user_answer, correct_answer = calculate_random()
                 else:
-                    user_answer, correct_answer = calculate(multiplication_table, factor_or_dividend, calculation_method)
+                    user_answer, correct_answer = calculate(table_or_divisor, 
+                                                            factor_or_dividend, 
+                                                            calculation_method)
 
                 # If winning
                 if user_answer == correct_answer:
                     print('\n*** Congratulations! ***')
-                    print(f'You answered all {num_of_questions} questions correctly, and survived the zombies!')
+                    print(f'You answered all {num_of_questions} questions correctly, and survived the zombies!\n')
                     # Game starts over from the very beginning 
-                    begin = True
+                    question = '*** Are you ready for another game? (y/n) ***\n'
+                    alive = False
+                    begin = input_play_game(question, n_message, y_message)
                 # If answering wrong on the last question
                 else:
-                    print('\nOh no! You were so close, but unfortunately that was the wrong answer. You will now be eaten by the zombies...')
-                # If player selects yes, all setings will be reset
-                # and the game starts with previous settings (begin = False)
+                    print('\nOh no! You were so close, but unfortunately that was the wrong answer. You will now be eaten by the zombies...\n')
+                    # If player selects yes, all setings will be reset
+                    # and the game starts with previous settings (begin = False)
+                    question = '*** Are you ready for another game? (y/n) ***\n'
+                    begin = False
+                    alive = input_play_game(question, n_message, y_message)
                 used_factor_dividend_list, answered_questions, doors_left = reset_after_losing(num_of_questions)
-                question = '*** Are you ready for another game? (y/n) ***\n'
-                alive = play_game(question, n_message, y_message)
-                
+
 
 start()
 
-                
+
